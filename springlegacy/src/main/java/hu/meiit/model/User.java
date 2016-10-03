@@ -3,13 +3,13 @@ package hu.meiit.model;
 public class User {
 
 	private String username;
-	private int credit;
+	private String credit;
 
 	public User() {
 
 	}
 
-	public User(String username, int credit) {
+	public User(String username, String credit) {
 		super();
 		this.username = username;
 		this.credit = credit;
@@ -23,11 +23,11 @@ public class User {
 		this.username = username;
 	}
 
-	public int getCredit() {
+	public String getCredit() {
 		return credit;
 	}
 
-	public void setCredit(int credit) {
+	public void setCredit(String credit) {
 		this.credit = credit;
 	}
 }

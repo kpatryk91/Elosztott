@@ -1,18 +1,25 @@
 package hu.meiit;
 
+import java.util.List;
+
+import hu.meiit.model.NEM;
+import hu.meiit.model.School;
 import lombok.Data;
 
 @Data
 public class CreateUserDTO {
 
 	private String username;
-	private int credit;
+	private String credit;
+	private School school;
+	private List<String> favcol;
+	private NEM gend;
 
 	public CreateUserDTO() {
 
 	}
 
-	public CreateUserDTO(String username, int credit) {
+	public CreateUserDTO(String username, String credit) {
 		super();
 		this.username = username;
 		this.credit = credit;
@@ -26,12 +33,36 @@ public class CreateUserDTO {
 		this.username = username;
 	}
 
-	public int getCredit() {
+	public String getCredit() {
 		return credit;
 	}
 
-	public void setCredit(int credit) {
+	public void setCredit(String credit) {
 		this.credit = credit;
+	}
+
+	public School getSchool() {
+		return school;
+	}
+
+	public void setSchool(School school) {
+		this.school = school;
+	}
+
+	public List<String> getFavcol() {
+		return favcol;
+	}
+
+	public void setFavcol(List<String> favcol) {
+		this.favcol = favcol;
+	}
+
+	public NEM getGender() {
+		return gend;
+	}
+
+	public void setGender(NEM gender) {
+		this.gend = gender;
 	}
 
 }
