@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ page isELIgnored="false"%>
 <!DOCTYPE html>
 <html>
@@ -10,7 +11,21 @@
 </head>
 <body>
 	${status}
-	<form action="<c:url value='/admin/newuser'></c:url>" method="post">
+	<c:url var="urika" value='/admin/newuser'></c:url>
+	<form:form  action="${urika}" modelAttribute="pageData"  method="POST">
+		<label>Username:</label>
+		<form:input path="username"/> <br />
+		<label>Credit</label>
+		<form:input path="credit"/> <br />
+		
+		<label>Schools</label>
+		<form:select path="school" items="${schools}" multiple="false" > <br />
+		
+		</form:select>
+		<input type="submit" value="Create">
+	</form:form>
+	<!--  
+	<form action="" method="post">
 		<input type="text" placeholder="ide nevet!" name="username" value="${username}">
 		<input type="text" name="credit" value="${credit}"> <br />
 		
@@ -34,5 +49,6 @@
 
 		<input type="submit">
 	</form>
+	-->
 </body>
 </html>

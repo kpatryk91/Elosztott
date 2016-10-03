@@ -1,14 +1,21 @@
 package hu.meiit;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import hu.meiit.model.NEM;
+import hu.meiit.model.UserModelData;
 import hu.meiit.service.UserManager;
 
 @Controller
@@ -35,16 +42,41 @@ public class UjController {
 	@RequestMapping(value = "/newuser", method = { RequestMethod.GET })
 	public ModelAndView generateNewUserPage() {
 		ModelAndView mav = new ModelAndView("newuser");
-		mav.addObject("username", "");
-		mav.addObject("credit", "");
-		mav.addObject("male", "checked='checked'");
+		UserModelData data = new UserModelData();
+		data.setUsername("");
+		data.setCredit("");
+		data.getSchool().put("HIGHSCHOOL", "Highschool");
+		Map<String, String> selected = new HashMap<String, String>();
+		selected.put("HIGHSCHOOL", "Highschool");
+		selected.put("COLLEGE", "College");
+		selected.put("UNIVERSITY", "University");
+		mav.addObject("pageData", data);
+		mav.addObject("schools", selected);
 		return mav;
 	}
 
 	@RequestMapping(value = "/newuser", method = { RequestMethod.POST })
-	public ModelAndView generateCreateUserHandler(@ModelAttribute() CreateUserDTO dto) {
+	public ModelAndView generateCreateUserHandler(@Valid @ModelAttribute() CreateUserDTO dto, BindingResult result) {
 
 		ModelAndView mav = new ModelAndView("newuser");
+		if (result.hasErrors()) {
+			for (ObjectError error : result.getAllErrors()) {
+				if (error.getObjectName().equals("username")) {
+
+				}
+			}
+		}
+
+		UserModelData data = new UserModelData();
+		data.setUsername(dto.getUsername());
+		data.setCredit(dto.getCredit());
+		data.getSchool().put("HIGHSCHOOL", "Highschool");
+		Map<String, String> selected = new HashMap<String, String>();
+		selected.put("HIGHSCHOOL", "Highschool");
+		selected.put("COLLEGE", "College");
+		selected.put("UNIVERSITY", "University");
+		mav.addObject("pageData", data);
+		mav.addObject("schools", selected);
 		System.out.println(dto.getFavcol());
 
 		boolean hasError = false;
@@ -102,7 +134,17 @@ public class UjController {
 			return mav;
 		}
 		userManager.storeUser(dto);
+
 		mav.setViewName("redirect:/admin/status");
 		return mav;
+	}
+	
+	private UserModelData generateDefaultModelData() {
+		UserModelData data = new UserModelData();
+		data.setUsername("");
+		data.setCredit("");
+		data.getSchool().put("HIGHSCHOOL", "Highschool");
+		
+		return data;
 	}
 }
