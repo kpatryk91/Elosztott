@@ -1,6 +1,9 @@
 package hu.meiit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -8,13 +11,12 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import hu.meiit.model.NEM;
 import hu.meiit.model.UserModelData;
 import hu.meiit.service.UserManager;
 
@@ -24,6 +26,17 @@ public class UjController {
 
 	@Autowired
 	private UserManager userManager;
+
+	private List<String> availableColors = new ArrayList<String>(Arrays.asList("red", "green", "blue"));
+	private Map<String, String> availableSchools = new HashMap<String, String>() {
+		{
+			put("HIGHSCHOOL", "Highschool");
+			put("COLLEGE", "College");
+			put("UNIVERSITY", "University");
+		}
+	};
+	private List<String> availableGenders = new ArrayList<String>(Arrays.asList("MALE", "FEMALE"));
+	private String[] availableFields = new String[] { "username", "credit", "school", "favcol", "gend" };
 
 	@RequestMapping(value = "/status")
 	public ModelAndView generateStatusPage() {
@@ -45,106 +58,69 @@ public class UjController {
 		UserModelData data = new UserModelData();
 		data.setUsername("");
 		data.setCredit("");
-		data.getSchool().put("HIGHSCHOOL", "Highschool");
-		Map<String, String> selected = new HashMap<String, String>();
-		selected.put("HIGHSCHOOL", "Highschool");
-		selected.put("COLLEGE", "College");
-		selected.put("UNIVERSITY", "University");
+		data.getSchool().add("HIGHSCHOOL");
 		mav.addObject("pageData", data);
-		mav.addObject("schools", selected);
+		mav.addObject("schools", availableSchools);
+		mav.addObject("colors", availableColors);
+		mav.addObject("genders", availableGenders);
 		return mav;
 	}
 
 	@RequestMapping(value = "/newuser", method = { RequestMethod.POST })
-	public ModelAndView generateCreateUserHandler(@Valid @ModelAttribute() CreateUserDTO dto, BindingResult result) {
+	public ModelAndView generateCreateUserHandler(@ModelAttribute() @Valid CreateUserDTO dto, BindingResult result) {
 
 		ModelAndView mav = new ModelAndView("newuser");
+		System.out.println(dto);
+		List<String> errors = new ArrayList<String>();
 		if (result.hasErrors()) {
-			for (ObjectError error : result.getAllErrors()) {
-				if (error.getObjectName().equals("username")) {
+			manageErrors(errors, availableFields, result);
 
-				}
+			UserModelData data = new UserModelData();
+			data.setUsername(dto.getUsername());
+			data.setCredit(dto.getCredit());
+			if (dto.getSchool() != null) {
+				data.getSchool().add(dto.getSchool().name());
 			}
-		}
 
-		UserModelData data = new UserModelData();
-		data.setUsername(dto.getUsername());
-		data.setCredit(dto.getCredit());
-		data.getSchool().put("HIGHSCHOOL", "Highschool");
-		Map<String, String> selected = new HashMap<String, String>();
-		selected.put("HIGHSCHOOL", "Highschool");
-		selected.put("COLLEGE", "College");
-		selected.put("UNIVERSITY", "University");
-		mav.addObject("pageData", data);
-		mav.addObject("schools", selected);
-		System.out.println(dto.getFavcol());
-
-		boolean hasError = false;
-		if (dto.getUsername() == null || dto.getUsername().equals("")) {
-			mav.addObject("username", "");
-			hasError = true;
-		} else {
-			mav.addObject("username", dto.getUsername());
-		}
-
-		try {
-			Integer.parseInt(dto.getCredit());
-
-			mav.addObject("credit", dto.getCredit());
-		} catch (Exception e) {
-			hasError = true;
-			mav.addObject("credit", "");
-		}
-
-		switch (dto.getSchool()) {
-		case COLLEGE:
-			mav.addObject("COLLEGE", "selected='selected'");
-			break;
-		case HIGHSCHOOL:
-			mav.addObject("HIGHSCHOOL", "selected='selected'");
-			break;
-		case UNIVERSITY:
-			mav.addObject("UNIVERSITY", "selected='selected'");
-		}
-
-		if (dto.getFavcol() != null) {
-			for (String elem : dto.getFavcol()) {
-				if (elem.equals("red")) {
-					mav.addObject("RED", "checked='checked'");
-				}
-
-				if (elem.equals("green")) {
-					mav.addObject("GREEN", "checked='checked'");
-				}
-
-				if (elem.equals("blue")) {
-					mav.addObject("BLUE", "checked='checked'");
-				}
+			if (dto.getFavcol() != null) {
+				data.setFavcol(dto.getFavcol());
 			}
-		}
 
-		if (dto.getGender() == NEM.MALE) {
-			mav.addObject("male", "checked='checked'");
-		} else {
-			mav.addObject("female", "checked='checked'");
-		}
+			if (dto.getGend() != null) {
+				data.setGend(dto.getGend().name());
+			}
 
-		if (hasError == true) {
-			mav.addObject("status", "error!");
+			mav.addObject("pageData", data);
+			mav.addObject("schools", availableSchools);
+			mav.addObject("colors", availableColors);
+			mav.addObject("genders", availableGenders);
+			mav.addObject("status", errors);
 			return mav;
 		}
+
 		userManager.storeUser(dto);
 
 		mav.setViewName("redirect:/admin/status");
 		return mav;
 	}
-	
+
 	private UserModelData generateDefaultModelData() {
 		UserModelData data = new UserModelData();
 		data.setUsername("");
 		data.setCredit("");
-		data.getSchool().put("HIGHSCHOOL", "Highschool");
-		
+		data.getSchool().add("HIGHSCHOOL");
+
 		return data;
+	}
+
+	private void manageErrors(List<String> result, String[] fields, BindingResult validationResult) {
+		int length = fields.length;
+		List<FieldError> fieldErrors = null;
+		for (int i = 0; i < length; i++) {
+			fieldErrors = validationResult.getFieldErrors(fields[i]);
+			for (FieldError fe : fieldErrors) {
+				result.add(fields[i] + ": " + fe.getDefaultMessage());
+			}
+		}
 	}
 }

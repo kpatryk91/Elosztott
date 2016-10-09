@@ -4,31 +4,31 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import hu.meiit.model.NEM;
 import hu.meiit.model.School;
-import lombok.Data;
 
-@Data
 public class CreateUserDTO {
 
-	@NotNull
 	@NotBlank
-	@Size(min = 1, max = 10)
+	@Length(min = 1, max = 10)
 	private String username;
-	
-	@NotNull
+
+	@NotEmpty
+	@NotBlank
+	@Pattern(regexp = "[0-9]{1,10}")
 	private String credit;
-	
+
 	@NotNull
 	private School school;
-	
-	@NotNull
+
+	@NotEmpty
 	private List<String> favcol;
-	
+
 	@NotNull
 	private NEM gend;
 
@@ -74,12 +74,18 @@ public class CreateUserDTO {
 		this.favcol = favcol;
 	}
 
-	public NEM getGender() {
+	public NEM getGend() {
 		return gend;
 	}
 
-	public void setGender(NEM gender) {
-		this.gend = gender;
+	public void setGend(NEM gend) {
+		this.gend = gend;
+	}
+
+	@Override
+	public String toString() {
+		return "CreateUserDTO [username=" + username + ", credit=" + credit + ", school=" + school + ", favcol="
+				+ favcol + ", gend=" + gend + "]";
 	}
 
 }

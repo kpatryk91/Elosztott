@@ -10,18 +10,28 @@
 <title>Insert title here</title>
 </head>
 <body>
-	${status}
+	<c:forEach var="stat" items="${status}">
+		<p>${stat}</p>
+	</c:forEach>
 	<c:url var="urika" value='/admin/newuser'></c:url>
 	<form:form  action="${urika}" modelAttribute="pageData"  method="POST">
 		<label>Username:</label>
 		<form:input path="username"/> <br />
 		<label>Credit</label>
 		<form:input path="credit"/> <br />
-		
+		<br />
 		<label>Schools</label>
-		<form:select path="school" items="${schools}" multiple="false" > <br />
-		
+		<form:select path="school" items="${schools}" multiple="false" > <br />	
 		</form:select>
+		<br />
+		<br />
+		<label>Favourite color:</label>
+		<form:checkboxes items="${colors}" path="favcol"/>
+		<br />
+		<br /> 
+		<label>Gender:</label>
+		<form:radiobuttons path="gend" items="${genders}"/>
+		
 		<input type="submit" value="Create">
 	</form:form>
 	<!--  
