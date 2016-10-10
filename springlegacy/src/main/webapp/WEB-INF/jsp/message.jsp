@@ -7,9 +7,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script type="text/javascript" src="http://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" href="http://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" >
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript"
+	src="http://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet"
+	href="http://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
 
 <link rel="stylesheet" href="<spring:theme code="css"></spring:theme>">
 <c:url value="/springlegacy" var="url"></c:url>
@@ -17,7 +20,7 @@
 <title>Status jsp</title>
 
 <script type="text/javascript">
-	$(document).ready(function(){
+	$(document).ready(function() {
 		$("#tablazat").DataTable();
 	});
 </script>
@@ -51,6 +54,6 @@
 		</tbody>
 	</table>
 
-<img src="<spring:theme code="img"></spring:theme>">
+	<img src="<spring:theme code="img"></spring:theme>">
 </body>
 </html>
