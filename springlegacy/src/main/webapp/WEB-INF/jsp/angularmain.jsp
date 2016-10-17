@@ -12,24 +12,66 @@
 	var appReg = angular.module("register", []);
 	appReg.controller("regController", function($scope, $http) {
 		$scope.register = function() {
+			var elements = [];
+			for ( var index in $scope.colors) {
+				if ($scope.colors[index] == true) {
+					elements.push(index);
+				}
+			}
 			$http.post("registeruserangular", {
-				username : $scope.rusername, credit : $scope.rcredit}
-			).then(function(response){
-				console.log(response);
-				if(response.data == 1) {
+				username : $scope.rusername,
+				credit : $scope.rcredit,
+				school : $scope.rschool,
+				favcol : elements,
+				gend : $scope.sex
+			}).then(function(response) {
+
+				if (response.data == 1) {
+					$scope.rusername = "";
+					$scope.rcredit = "";
+					//$scope.rschool
+					for ( var color in $scope.colors) {
+						$scope.colors[color] = false;
+					}
+					$scope.sex = "MALE"
 					$scope.regStatus = "OK!"
+					$scope.getUsers();
 				} else {
 					$scope.regStatus = "Registration error!"
 				}
 			});
 		}
 		$scope.schools;
-		$scope.elements = function(){
-			$http.get("getelements").then( function(response){
-				console.log(response);
-				$scope.schools =  response.data;
+		$scope.elements = function() {
+			$http.get("getschools").then(function(response) {
+				$scope.schools = response.data;
 			});
 		};
+		$scope.getColors = function() {
+			$http.get("getcolors").then(function(response) {
+				$scope.colors = {};//= response.data;
+				var length = response.data.length;
+				var data = response.data;
+				var temp;
+				for (var i = 0; i < length; i++) {
+
+					$scope.colors[data[i].colorCode] = data[i].enabled;
+				}
+
+			});
+		}
+
+		$scope.getUsers = function() {
+			$http.get("getusers").then(function(response) {
+				
+				$scope.users = response.data;
+
+			});
+		}
+		$scope.getUsers();
+		$scope.sex = "MALE";
+		$scope.getColors();
+		//$scope.colors = {Red: true, Green : false};
 		$scope.elements();
 	});
 </script>
@@ -39,36 +81,41 @@
 	<div data-ng-app="register" data-ng-controller="regController">
 		<h2>Registration</h2>
 		<p>{{regStatus}}</p>
-		<label>Username</label> <input type="text" data-ng-model="rusername">
-		<label>Credit</label> <input type="text" data-ng-model="rcredit">
-		<select data-ng-option="">
-			<option data-ng-repeat="elem in schools">{{elem}}</option>
-		</select>
+		<label>Username</label> <input type="text" data-ng-model="rusername"><br />
+		<label>Credit</label> <input type="text" data-ng-model="rcredit"><br />
+		<select data-ng-model="rschool">
+			<option value="{{elem.key}}" data-ng-repeat="elem in schools">{{elem.value}}</option>
+		</select><br /> <label ng-repeat="(color,enabled) in colors"> <input
+			type="checkbox" ng-model="colors[color]" /> {{color}}
+		</label> <br /> Male<input type="radio" ng-model="sex" value="MALE"
+			checked="checked"><br /> Female<input type="radio"
+			ng-model="sex" value="FEMALE">
 		<button data-ng-click="register()">Register</button>
+
+		<h2>Users:</h2>
+		<table id="tablazat" data-ng-model="users">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Credit</th>
+					<th>Schools</th>
+					<th>Favourite colors</th>
+					<th>Gender</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="adat in users">
+					<td>{{adat.username}}</td>
+					<td>{{adat.credit}}</td>
+					<td>{{adat.school}}</td>
+					<td><p ng-repeat="data2 in adat.favcols">{{data2}}</p></td>
+					<td>{{adat.gend}}</td>
+				</tr>
+			</tbody>
+		</table>
+
 	</div>
 
-	<h2>Users:</h2>
-	<table id="tablazat">
-		<thead>
-			<tr>
-				<th><spring:message code="name"></spring:message></th>
-				<th><spring:message code="credit"></spring:message></th>
-				<th><spring:message code="school"></spring:message></th>
-				<th><spring:message code="favcols"></spring:message></th>
-				<th><spring:message code="gender"></spring:message></th>
-			</tr>
-		</thead>
-		<tbody>
-			<c:forEach var="user" items="${users}">
-				<tr>
-					<td>username</td>
-					<td>credit</td>
-					<td>school</td>
-					<td>favourite color</td>
-					<td>gender</td>
-				</tr>
-			</c:forEach>
-		</tbody>
-	</table>
+
 </body>
 </html>
