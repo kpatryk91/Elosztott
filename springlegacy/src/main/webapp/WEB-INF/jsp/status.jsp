@@ -25,6 +25,7 @@
 </head>
 <body>
 	<a href="<c:url value='/admin/newuser'></c:url>">New user</a>
+	<a href="<c:url value='/admin/deleteuser'></c:url>">Delete user</a>
 	<h2>Users:</h2>
 	<table id="tablazat">
 		<thead>

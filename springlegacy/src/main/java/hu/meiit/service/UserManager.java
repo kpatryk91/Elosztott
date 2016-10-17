@@ -42,4 +42,13 @@ public class UserManager {
 			return users.values();
 		}
 	}
+
+	public boolean deleteuser(String userid) {
+		User result = users.remove(userid);
+		if (result == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 }
