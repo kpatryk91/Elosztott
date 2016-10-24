@@ -27,7 +27,7 @@ public class AngularController {
 
 	@Autowired
 	private UserManager userManager;
-	
+
 	private List<String> availableColors = new ArrayList<String>(Arrays.asList("red", "green", "blue"));
 	private Map<String, String> availableSchools = new HashMap<String, String>() {
 		{
@@ -54,8 +54,13 @@ public class AngularController {
 	}
 
 	@RequestMapping(value = "/status")
-	public ModelAndView generateWebPage() {
+	public ModelAndView generateWebPageHandler() {
 		return new ModelAndView("angularmain");
+	}
+
+	@RequestMapping(value = "/main")
+	public ModelAndView generateMainPageHandler() {
+		return new ModelAndView("angularsecond");
 	}
 
 	@RequestMapping(value = "/registeruserangular", consumes = "application/json")
@@ -74,7 +79,7 @@ public class AngularController {
 	public Collection<User> getUsersHandler() {
 		return userManager.getUsers();
 	}
-	
+
 	@RequestMapping(value = "/getschools")
 	@ResponseBody
 	public List<DataPairDTO> getElementsHandler() {

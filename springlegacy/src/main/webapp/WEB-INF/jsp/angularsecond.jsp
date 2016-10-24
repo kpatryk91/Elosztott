@@ -20,22 +20,34 @@
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 <title>Insert title here</title>
+
+<style>
+input.ng-invalid {
+	background-color: red;
+}
+
+input.ng-valid {
+	background-color: lightgreen;
+}
+</style>
 <script type="text/javascript">
-	var appReg = angular.module("register", [ 'ngMessages' ]);
+	var appReg = angular.module("register", [ 'ngMessages', 'ngMaterial' ]);
 	appReg.controller("regController", function($scope, $http) {
 		$scope.register = function() {
 			var elements = [];
-			for ( var index in $scope.colors) {
-				if ($scope.colors[index] == true) {
-					elements.push(index);
+			console.log($scope.ruser);
+			
+			for ( var index in $scope.colorValues) {				
+				if ($scope.colorValues[index].enabled == true) {
+					elements.push($scope.colorValues[index].colorCode);
 				}
 			}
 			$http.post("registeruserangular", {
-				username : $scope.rusername,
-				credit : $scope.rcredit,
-				school : $scope.rschool,
+				username : $scope.ruser.username,
+				credit : $scope.ruser.credit,
+				school : $scope.ruser.school,
 				favcol : elements,
-				gend : $scope.sex
+				gend : $scope.ruser.sex
 			}).then(function(response) {
 
 				if (response.data == 1) {
@@ -61,15 +73,7 @@
 		};
 		$scope.getColors = function() {
 			$http.get("getcolors").then(function(response) {
-				$scope.colors = {};//= response.data;
-				var length = response.data.length;
-				var data = response.data;
-				var temp;
-				for (var i = 0; i < length; i++) {
-
-					$scope.colors[data[i].colorCode] = data[i].enabled;
-				}
-
+				$scope.colorValues = response.data;
 			});
 		}
 
@@ -93,15 +97,42 @@
 	<div data-ng-app="register" data-ng-controller="regController">
 		<h2>Registration</h2>
 		<p>{{regStatus}}</p>
-		<label>Username</label> <input type="text" data-ng-model="rusername"><br />
-		<label>Credit</label> <input type="text" data-ng-model="rcredit"><br />
-		<select data-ng-model="rschool">
-			<option value="{{elem.key}}" data-ng-repeat="elem in schools">{{elem.value}}</option>
-		</select><br /> <label ng-repeat="(color,enabled) in colors"> <input
-			type="checkbox" ng-model="colors[color]" /> {{color}}
-		</label> <br /> Male<input type="radio" ng-model="sex" value="MALE"
-			checked="checked"><br /> Female<input type="radio"
-			ng-model="sex" value="FEMALE">
+		<md-content layout-padding>
+		<form name="userdata">
+			<md-input-container> <label>Username</label> <input
+				type="text" name="username" data-ng-model="ruser.username"
+				data-ng-minlength="3" data-ng-maxlength="10" required>
+			<p data-ng-show="userdata.username.$error.minlength">A hossz túl
+				kicsi!</p>
+			<p data-ng-show="userdata.username.$error.maxlength">A hossz túl
+				nagy!</p>
+			<p ng-show="userForm.username.$error.required">A mező kötelező!</p>
+			</md-input-container>
+			<br /> 
+			<md-input-container> 
+			<label>Credit</label> <input type="text"
+				data-ng-model="ruser.credit" data-ng-pattern="/^[0-9]{1,10}$/"
+				required>
+				</md-input-container> <br />
+			<md-container> <md-select data-ng-model="ruser.school">
+				<md-option value="{{elem.key}}" data-ng-repeat="elem in schools"
+					selected="selected">{{elem.value}}</md-option>
+			</md-select> 
+			</md-container> <br /><br />
+			<md-container> 
+			<label ng-repeat="color in colorValues"> <md-checkbox ng-checked="color.enabled" value="color.colorCode"
+				ng-click="color.enabled = !color.enabled"/> {{color.colorValue}}</label>
+			</md-container> <br /><br />
+		 	<md-radio-group ng-model="ruser.sex"> 
+		 	<md-radio-button value="MALE" aria-label="Male" ng-checked> Male</md-radio-button>
+			 <br /> <md-radio-button 
+			 value="FEMALE" aria-label="Female"> Female</md-radio-button>
+			</md-radio-group>
+			
+		</form>
+		</md-content>
+
+		
 		<button data-ng-click="register()">Register</button>
 
 		<h2>Users:</h2>
@@ -125,9 +156,6 @@
 				</tr>
 			</tbody>
 		</table>
-		<div data-ng-cloak data-layout="row">
-		
-		</div>
 	</div>
 
 
