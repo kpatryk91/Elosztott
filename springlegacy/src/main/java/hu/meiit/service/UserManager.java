@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import hu.meiit.CreateUserDTO;
+import hu.meiit.model.NEM;
+import hu.meiit.model.School;
 import hu.meiit.model.User;
 
 public class UserManager {
@@ -14,6 +16,13 @@ public class UserManager {
 	private Map<String, User> users = new HashMap<String, User>();
 
 	private Object storeUserToken = new Object();
+
+	public UserManager() {
+		users = new HashMap<String, User>();
+		for (CreateUserDTO user : generateFakeUsers()) {
+			storeUser(user);
+		}
+	}
 
 	public void storeUser(CreateUserDTO user) {
 		synchronized (storeUserToken) {
@@ -50,5 +59,30 @@ public class UserManager {
 		} else {
 			return true;
 		}
+	}
+
+	public List<CreateUserDTO> generateFakeUsers() {
+		int number = 5;
+		List<CreateUserDTO> users = new ArrayList<CreateUserDTO>(number);
+		CreateUserDTO user = null;
+		for (int i = 0; i < number; i++) {
+			user = new CreateUserDTO("Name" + (Math.random() * 10), Long.toString(Math.round(Math.random() * 10)));
+			if (Math.random() > 0.5) {
+				user.setGend(NEM.MALE);
+				user.setSchool(School.HIGHSCHOOL);
+				List<String> colors = new ArrayList<String>();
+				colors.add("red");
+				colors.add("green");
+				user.setFavcol(colors);
+			} else {
+				user.setGend(NEM.FEMALE);
+				user.setSchool(School.UNIVERSITY);
+				List<String> colors = new ArrayList<String>();
+				colors.add("blue");
+				user.setFavcol(colors);
+			}
+			users.add(user);
+		}
+		return users;
 	}
 }

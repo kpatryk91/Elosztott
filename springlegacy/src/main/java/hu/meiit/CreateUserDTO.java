@@ -26,7 +26,7 @@ public class CreateUserDTO {
 	@NotNull
 	private School school;
 
-	@NotEmpty
+	@NotNull
 	private List<String> favcol;
 
 	@NotNull

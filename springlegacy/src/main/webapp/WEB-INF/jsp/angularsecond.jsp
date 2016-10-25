@@ -23,47 +23,80 @@
 
 <style>
 input.ng-invalid {
-	background-color: red;
+	background-color: pink;
 }
 
 input.ng-valid {
 	background-color: lightgreen;
 }
+
+.menuStyle {
+	background-color : lightblue;
+	
+}
 </style>
 <script type="text/javascript">
 	var appReg = angular.module("register", [ 'ngMessages', 'ngMaterial' ]);
-	appReg.controller("regController", function($scope, $http) {
-		$scope.register = function() {
+	// Service layer
+	appReg.service("$pageService", function($http, $mdToast) {
+		this.deleteUser = function(userid, resultSuccess, resultFailed) {
+			$http.post("deleteuser", userid).then(resultSuccess, resultFailed);
+		}
+		this.showToast = function(message) {
+			 $mdToast.show(
+                     $mdToast.simple()
+                        .textContent(message)                       
+                        .hideDelay(3000)
+             );
+		}
+		this.registerUser = function(userData, resultSuccess, resultFailed) {
+			$http.post("registeruserangular", userData).then(resultSuccess, resultFailed);
+		}
+		this.filterColors = function(colors) {
 			var elements = [];
-			console.log($scope.ruser);
-			
-			for ( var index in $scope.colorValues) {				
-				if ($scope.colorValues[index].enabled == true) {
-					elements.push($scope.colorValues[index].colorCode);
+			for ( var index in colors) {
+				if (colors[index].enabled == true) {
+					elements.push(colors[index].colorCode);
 				}
 			}
-			$http.post("registeruserangular", {
+			return elements;
+		}
+	});
+	appReg.controller("regController", function($scope, $http, $mdToast,
+			$mdDialog, $pageService) {
+		$scope.register = function() {
+			var colors = $pageService.filterColors($scope.colorValues);
+			
+			var userData = {
 				username : $scope.ruser.username,
 				credit : $scope.ruser.credit,
 				school : $scope.ruser.school,
-				favcol : elements,
+				favcol : colors,
 				gend : $scope.ruser.sex
-			}).then(function(response) {
-
+			}
+			var success = function(response) {
 				if (response.data == 1) {
-					$scope.rusername = "";
-					$scope.rcredit = "";
+					$scope.ruser.username = "";
+					$scope.ruser.credit = "";
 					//$scope.rschool
-					for ( var color in $scope.colors) {
-						$scope.colors[color] = false;
+					for ( var color in $scope.colorValues) {
+						$scope.colorValues[color].enabled = false;
 					}
-					$scope.sex = "MALE"
-					$scope.regStatus = "OK!"
+					$scope.ruser.sex = "MALE";
+					$scope.enabledRegistration = false;
+					$pageService.showToast("Registration success!");
 					$scope.getUsers();
 				} else {
-					$scope.regStatus = "Registration error!"
+					$pageService.showToast("Registration failed!");
 				}
-			});
+			}
+			
+			var failed = function() {
+				$pageService.showToast("Registration failed!");
+			}
+			
+			$pageService.registerUser(userData, success, failed); 
+	
 		}
 		$scope.schools;
 		$scope.elements = function() {
@@ -84,78 +117,124 @@ input.ng-valid {
 
 			});
 		}
+		
+		$scope.deleteuser = function(username) {
+	
+			var dialog = $mdDialog.confirm().title("Delete confirm!").textContent("Text content!").ok("Yes!").cancel("NO!");
+			$mdDialog.show(dialog).then(function() {
+				var success = function() {
+					$scope.getUsers();
+					$pageService.showToast("User deleted!");
+				}
+				
+				var failed = function() {
+					$pageService.showToast("Delete failed! :'(");
+				}
+				$pageService.deleteUser(username,success, failed);
+			}, function() {
+				
+			});
+		}
+
+		/////////////////////////////////////////////////////////////////////////////6
+		// initialization
 		$scope.getUsers();
 		$scope.sex = "MALE";
 		$scope.getColors();
+		$scope.enabledRegistration = false;
 		//$scope.colors = {Red: true, Green : false};
 		$scope.elements();
 	});
 </script>
 
 </head>
-<body>
-	<div data-ng-app="register" data-ng-controller="regController">
-		<h2>Registration</h2>
-		<p>{{regStatus}}</p>
-		<md-content layout-padding>
-		<form name="userdata">
-			<md-input-container> <label>Username</label> <input
-				type="text" name="username" data-ng-model="ruser.username"
-				data-ng-minlength="3" data-ng-maxlength="10" required>
-			<p data-ng-show="userdata.username.$error.minlength">A hossz túl
-				kicsi!</p>
-			<p data-ng-show="userdata.username.$error.maxlength">A hossz túl
-				nagy!</p>
-			<p ng-show="userForm.username.$error.required">A mező kötelező!</p>
-			</md-input-container>
-			<br /> 
-			<md-input-container> 
-			<label>Credit</label> <input type="text"
-				data-ng-model="ruser.credit" data-ng-pattern="/^[0-9]{1,10}$/"
-				required>
-				</md-input-container> <br />
-			<md-container> <md-select data-ng-model="ruser.school">
-				<md-option value="{{elem.key}}" data-ng-repeat="elem in schools"
-					selected="selected">{{elem.value}}</md-option>
-			</md-select> 
-			</md-container> <br /><br />
-			<md-container> 
-			<label ng-repeat="color in colorValues"> <md-checkbox ng-checked="color.enabled" value="color.colorCode"
-				ng-click="color.enabled = !color.enabled"/> {{color.colorValue}}</label>
-			</md-container> <br /><br />
-		 	<md-radio-group ng-model="ruser.sex"> 
-		 	<md-radio-button value="MALE" aria-label="Male" ng-checked> Male</md-radio-button>
-			 <br /> <md-radio-button 
-			 value="FEMALE" aria-label="Female"> Female</md-radio-button>
-			</md-radio-group>
-			
-		</form>
-		</md-content>
+<body data-ng-app="register" data-ng-controller="regController">
+	<div>
+		<div layout="row">
+			<div flex="100">
+				<div class="menuStyle">
+				<md-button class="md-raised" ng-click="enabledRegistration = !enabledRegistration">Regisztráció!</md-button>
+				</div>
+				
+			</div>
+		</div>
+		<div layout="row" ng-show="enabledRegistration">
+			<div flex="33">
+				<h2>Registration</h2>
+				<p>{{regStatus}}</p>
+				<md-content layout-padding>
+				<form name="userdata">
+					<md-input-container> <label>Username</label> <input
+						type="text" name="username" data-ng-model="ruser.username"
+						data-ng-minlength="3" data-ng-maxlength="10" required>
+					<div data-ng-show="userdata.username.$touched"
+						data-ng-messages="userdata.username.$error">
+						<p data-ng-show="userdata.username.$error.minlength">A hossz
+							túl kicsi!</p>
+						<p data-ng-show="userdata.username.$error.maxlength">A hossz
+							túl nagy!</p>
+						<p ng-show="userForm.username.$error.required">A mező
+							kötelező!</p>
+					</div>
+					</md-input-container>
+					<br />
+					<md-input-container> <label>Credit</label> <input
+						type="text" data-ng-model="ruser.credit"
+						data-ng-pattern="/^[0-9]{1,10}$/" required> </md-input-container>
+					<br />
+					<md-container> <md-select
+						data-ng-model="ruser.school"> <md-option
+						value="{{elem.key}}" data-ng-repeat="elem in schools"
+						selected="selected">{{elem.value}}</md-option> </md-select> </md-container>
+					<br /> <br />
+					<md-container> <label
+						ng-repeat="color in colorValues"> <md-checkbox
+							ng-checked="color.enabled" value="color.colorCode"
+							ng-click="color.enabled = !color.enabled" />
+						{{color.colorValue}}
+					</label> </md-container>
+					<br /> <br />
+					<md-radio-group ng-model="ruser.sex" required> <md-radio-button
+						value="MALE" aria-label="Male" ng-checked> Male</md-radio-button>
+					<br />
+					<md-radio-button value="FEMALE" aria-label="Female">
+					Female</md-radio-button> </md-radio-group>
+					<md-button class="md-raised" data-ng-click="register()"
+						ng-disabled="userdata.$invalid">Register</md-button>
+				</form>
+				</md-content>
+			</div>
+		</div>
 
+
+		<div layout="row" layout-wrap>
+			<div layout="column" data-ng-repeat="user in users">
+				<md-card>
+					<md-card-header>
+						<md-card-header-text>
+						<span class="md-title">User details:</span>
+						</md-card-header-text>
+					</md-card-header>
+					<md-card-title>
+						<md-card-title-text>
+						<span class="md-headline">Name: {{user.username}}</span>
+						<span class="md-headline">Credit: {{user.credit}}</span>
+							<span class="md-headline">School: {{user.school}}</span>
+						</md-card-title-text>
+					</md-card-title>
+					<md-card-content>
+						<span class="md-headline">Colors:</span>
+						<p data-ng-repeat="color in user.favcols">
+							<span class="md-headline">{{color}}</span>
+						</p>
+					</md-card-content>
+					<md-card-action>
+						<md-button class="md-raised" ng-click="deleteuser(user.username)">Törlés</md-button>
+					</md-card-action>
+				</md-card>
+			</div>
+		</div>
 		
-		<button data-ng-click="register()">Register</button>
-
-		<h2>Users:</h2>
-		<table id="tablazat" data-ng-model="users">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Credit</th>
-					<th>Schools</th>
-					<th>Favourite colors</th>
-					<th>Gender</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="adat in users">
-					<td>{{adat.username}}</td>
-					<td>{{adat.credit}}</td>
-					<td>{{adat.school}}</td>
-					<td><p ng-repeat="data2 in adat.favcols">{{data2}}</p></td>
-					<td>{{adat.gend}}</td>
-				</tr>
-			</tbody>
-		</table>
 	</div>
 
 

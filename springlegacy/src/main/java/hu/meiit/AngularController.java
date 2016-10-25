@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -78,6 +79,13 @@ public class AngularController {
 	@ResponseBody
 	public Collection<User> getUsersHandler() {
 		return userManager.getUsers();
+	}
+
+	@RequestMapping(value = "/deleteuser", method = { RequestMethod.GET,
+			RequestMethod.POST }, consumes = "application/json")
+	@ResponseBody
+	public boolean deleteUserHandler(@RequestBody String username) {
+		return userManager.deleteuser(username);
 	}
 
 	@RequestMapping(value = "/getschools")

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import hu.meiit.model.NEM;
+import hu.meiit.model.School;
 import hu.meiit.model.UserModelData;
 import hu.meiit.service.UserManager;
 
@@ -39,6 +41,10 @@ public class UjController {
 	};
 	private List<String> availableGenders = new ArrayList<String>(Arrays.asList("MALE", "FEMALE"));
 	private String[] availableFields = new String[] { "username", "credit", "school", "favcol", "gend" };
+
+	public UjController() {
+
+	}
 
 	@RequestMapping(value = "/status")
 	public ModelAndView generateStatusPage() {
