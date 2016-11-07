@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+ <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+ <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page isELIgnored="false"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -98,6 +100,18 @@ input.ng-valid {
 			$pageService.registerUser(userData, success, failed); 
 	
 		}
+		
+		$scope.performlogout = function() {
+			console.log("dsadas");
+			
+			$http.post("<c:url value='/logout'></c:url>",{}).then(function(response) {
+				document.write(response.data);
+				console.log(response);
+			}, function(response) {
+				console.log(response);
+			});
+			
+		};
 		$scope.schools;
 		$scope.elements = function() {
 			$http.get("getschools").then(function(response) {
@@ -154,6 +168,10 @@ input.ng-valid {
 			<div flex="100">
 				<div class="menuStyle">
 				<md-button class="md-raised" ng-click="enabledRegistration = !enabledRegistration">Regisztráció!</md-button>
+				Welcome: <sec:authentication property="principal.username"  />
+				<md-button class="md-raised" ng-click="performlogout()">Logout</md-button>
+				<a href="<c:url value='/logout'></c:url>">Logout</a>
+				
 				</div>
 				
 			</div>

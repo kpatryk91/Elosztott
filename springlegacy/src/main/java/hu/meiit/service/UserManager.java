@@ -6,12 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import hu.meiit.CreateUserDTO;
 import hu.meiit.model.NEM;
 import hu.meiit.model.School;
 import hu.meiit.model.User;
 
-public class UserManager {
+public class UserManager implements UserDetailsService{
 
 	private Map<String, User> users = new HashMap<String, User>();
 
@@ -83,6 +87,22 @@ public class UserManager {
 			}
 			users.add(user);
 		}
+		List<String> colors = new ArrayList<String>();
+		colors.add("red");
+		colors.add("green");
+		user.setFavcol(colors);
+		
+		CreateUserDTO u = new CreateUserDTO();
+		u.setGend(NEM.MALE);
+		u.setSchool(School.HIGHSCHOOL);
+		u.setFavcol(colors);
+		u.setUsername("bela");
+		u.setCredit("42");
+		users.add(u);
 		return users;
+	}
+
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return users.get(username);
 	}
 }

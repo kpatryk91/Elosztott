@@ -1,9 +1,14 @@
 package hu.meiit.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class User {
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+public class User implements UserDetails {
 
 	private String username;
 	private String credit;
@@ -62,6 +67,38 @@ public class User {
 
 	public void setGend(String gend) {
 		this.gend = gend;
+	}
+
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		// TODO Auto-generated method stub
+		Collection<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
+		auths.add(new SimpleGrantedAuthority("ROLE_USER"));
+		return auths;
+	}
+
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return username;
+	}
+
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 }

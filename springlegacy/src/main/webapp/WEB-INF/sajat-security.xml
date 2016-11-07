@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:bean="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mvc="http://www.springframework.org/schema/security/"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+	<http pattern="/*" auto-config="true" authentication-manager-ref="authman">
+		<form-login login-page="/logina" always-use-default-target="true"
+		default-target-url="/main" password-parameter="password"
+		username-parameter="username" authentication-failure-url="/logina?error"/>
+		<anonymous />
+		<csrf disabled="true"/>
+		<intercept-url pattern="/loginprocedura*" access="permitAll"/>
+		<intercept-url pattern="/login" access="permitAll"/>
+		<intercept-url pattern="/main*" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/*" access="permitAll" />
+		<logout logout-url="/logout" delete-cookies="JSESSIONID"
+		invalidate-session="true" logout-success-url="/"/>
+	</http>
+
+	<authentication-manager id="authman">
+		<authentication-provider ref="customAuthProv"></authentication-provider>
+	</authentication-manager>
+
+	<bean:bean id="customAuthProv" class="hu.meiit.service.CustomAuthProvider">
+
+	</bean:bean>
+
+</bean:beans>
