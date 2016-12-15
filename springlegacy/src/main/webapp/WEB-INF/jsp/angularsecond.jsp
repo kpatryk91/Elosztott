@@ -63,6 +63,16 @@ input.ng-valid {
 			}
 			return elements;
 		}
+		this.sendMessage = function(userid, message, success, failed) {
+			var user = {
+					userid : userid,
+					message : message
+			};
+			$http.post("sendmessage", user).then(success, failed);
+		}
+		this.getMessages = function(userid, success, failed) {
+			$http.post("getmessages", userid).then(success, failed);
+		}
 	});
 	appReg.controller("regController", function($scope, $http, $mdToast,
 			$mdDialog, $pageService) {
@@ -95,7 +105,7 @@ input.ng-valid {
 			
 			var failed = function() {
 				$pageService.showToast("Registration failed!");
-			}
+			};
 			
 			$pageService.registerUser(userData, success, failed); 
 	
@@ -158,11 +168,49 @@ input.ng-valid {
 		$scope.enabledRegistration = false;
 		//$scope.colors = {Red: true, Green : false};
 		$scope.elements();
+		$scope.sendMessageToUser = function() {
+			var success = function() {
+				console.log("success!");
+			}
+			var failed = function() {
+				console.log("failed!");
+			}
+			$pageService.sendMessage($scope.sendMessageTo, $scope.sendMessageText, success, failed);
+		};
+		$scope.getMessages = function() {
+			var success = function(result) {
+				$scope.userMessages = result.data;
+			}
+			var failed = function() {
+				console.log("failed!");
+			}
+			$pageService.getMessages($scope.getMessagesId, success, failed);
+		}
+		
+		$scope.userMessages = [];
 	});
 </script>
 
 </head>
 <body data-ng-app="register" data-ng-controller="regController">
+
+	<div>
+		Message: <input type="text" data-ng-model="sendMessageText"> To: <input type="text" data-ng-model="sendMessageTo">
+		<br /><md-button  class="md-raised" ng-click="sendMessageToUser()">Send message!</md-button>
+	</div>
+	<div>
+		<md-button  class="md-raised" ng-click="getMessages()">Get messages!</md-button><br>
+		Get user messages: <input type="text" data-ng-model="getMessagesId">
+		
+	</div>
+	
+	<div>
+		<table>
+			<tr data-ng-repeat="message in userMessages track by $index">
+				<td>{{message}}</td>
+			</tr>
+		</table>
+	</div>
 	<div>
 		<div layout="row">
 			<div flex="100">

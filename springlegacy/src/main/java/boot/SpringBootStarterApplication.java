@@ -10,7 +10,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootConfiguration
-@ImportResource({ "/sajat-servlet.xml", "sajat-security.xml" })
+@ImportResource({ "/sajat-servlet.xml", "sajat-security.xml", "sajat-integration.xml" })
 @Configuration
 @ComponentScan(basePackages = {
 		"hu.meiit" }, excludeFilters = @Filter(type = FilterType.ANNOTATION, value = Configuration.class))
